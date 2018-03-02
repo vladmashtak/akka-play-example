@@ -24,10 +24,11 @@ public class HomeController extends Controller {
     private ActorRef centralMaster;
     private final Timeout timeout = new Timeout(Duration.create(1, TimeUnit.SECONDS));
 
+    @Inject
     public HomeController() {
-        // final Config config = ConfigFactory.load("conf/application.conf");
+        final Config config = ConfigFactory.load("application.conf");
 
-        ActorSystem system = ActorSystem.create();
+        ActorSystem system = ActorSystem.create("application", config);
 
         centralMaster = system.actorOf(CentralMaster.getProps(), CentralMaster.ACTOR_NAME);
     }
