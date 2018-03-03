@@ -36,7 +36,7 @@ public class CentralMaster extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-                .matchAny(o -> log.info("Catch any event"))
+                .matchAny(o -> log.info("Catch any event: " + o))
                 .build();
     }
 }
