@@ -31,15 +31,13 @@ public class HomeController extends Controller {
     @Inject
     public HomeController(ActorSystem system) {
         centralMaster = system.actorOf(CentralMaster.getProps(), CentralMaster.ACTOR_NAME);
-        engineNode = system.actorOf(FromConfig.getInstance().props(), "engineNode");
-
-        System.out.println(engineNode.toString());
+        // engineNode = system.actorOf(FromConfig.getInstance().props()., "engineNode");
     }
 
     public Result getData() {
 
-        engineNode.tell("test", ActorRef.noSender());
-        // centralMaster.tell(new GetData(), ActorRef.noSender());
+        // engineNode.tell("Hello", ActorRef.noSender());
+        centralMaster.tell("World", ActorRef.noSender());
 
         return ok(views.html.index.render());
     }
