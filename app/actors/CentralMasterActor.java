@@ -1,43 +1,46 @@
 package actors;
 
 import akka.actor.AbstractActor;
-import akka.actor.Props;
-import akka.cluster.Cluster;
-import akka.cluster.ClusterEvent;
+import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import akka.routing.FromConfig;
+import com.google.inject.Inject;
+import play.libs.akka.InjectedActorSupport;
 
-import static akka.cluster.ClusterEvent.initialStateAsEvents;
 
-public class CentralMasterActor extends AbstractActor {
-    public static final String ACTOR_NAME = "CentralMasterActor";
+public class CentralMasterActor extends AbstractActor implements InjectedActorSupport {
+    private final ActorRef engineNode;
+    private final LoggingAdapter logger = Logging.getLogger(getContext().getSystem(), this);
 
-    public static Props getProps() {
-        return Props.create(CentralMasterActor.class);
+    @Inject
+    public CentralMasterActor(ActorSystem system) {
+        engineNode = system.actorOf(FromConfig.getInstance().props(), "EngineNode");
     }
 
-    // private final Cluster cluster = Cluster.get(getContext().getSystem());
+    // subscribe to cluster changes
+    @Override
+    public void preStart() {
+        logger.info("CentralMasterImpl started");
+    }
 
-    private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
-
-//    // subscribe to cluster changes
-//    @Override
-//    public void preStart() {
-//        log.info("CentralMasterImpl started");
-//        cluster.subscribe(getSelf(), initialStateAsEvents(), ClusterEvent.MemberEvent.class, ClusterEvent.UnreachableMember.class);
-//    }
-//
-//    // re-subscribe when restart
-//    @Override
-//    public void postStop() {
-//        log.info("CentralMasterImpl stopped");
-//        cluster.unsubscribe(getSelf());
-//    }
+    // re-subscribe when restart
+    @Override
+    public void postStop() {
+        logger.info("CentralMasterImpl stopped");
+    }
 
     @Override
     public AbstractActor.Receive createReceive() {
         return receiveBuilder()
-                .matchEquals("Hello", s -> log.info("Catch any event: " + s))
+                .matchEquals("Hello", s -> {
+                    logger.info("Message: " + s);
+                    engineNode.tell(s, getSelf());
+                })
+                .matchEquals("World", s -> {
+                    logger.info("Message: " + s);
+                })
                 .build();
     }
 

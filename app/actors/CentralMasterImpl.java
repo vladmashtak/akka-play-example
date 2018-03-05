@@ -1,24 +1,21 @@
 package actors;
 
 import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 
 @Singleton
 public class CentralMasterImpl implements CentralMaster {
     private ActorRef centralMaster;
 
-    public CentralMasterImpl() {
-        ActorSystem system = ActorSystem.apply("application");
-        // centralMaster.tell(new GetData(), ActorRef.noSender());
-        centralMaster = system.actorOf(CentralMasterActor.getProps(), CentralMasterActor.ACTOR_NAME);
-        System.out.println(centralMaster);
-        centralMaster.tell("Hello", ActorRef.noSender());
+    @Inject
+    public CentralMasterImpl(@Named("CentralMasterActor") ActorRef centralMaster) {
+        this.centralMaster = centralMaster;
     }
 
     @Override
-    public ActorRef getCentralMater() {
-        return centralMaster;
+    public void getData() {
+        centralMaster.tell("Hello", ActorRef.noSender());
     }
 }
