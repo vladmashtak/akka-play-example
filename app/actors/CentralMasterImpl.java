@@ -16,6 +16,6 @@ public class CentralMasterImpl implements CentralMaster {
 
     @Override
     public void getData() {
-        centralMaster.tell("Hello", ActorRef.noSender());
+        centralMaster.tell("GetStatisticService", ActorRef.noSender());
     }
 }

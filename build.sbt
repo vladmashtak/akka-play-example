@@ -8,9 +8,7 @@ scalaVersion := "2.12.2"
 
 val akkaVersion = "2.5.10"
 
-lazy val messages = project.in(file("akka-play-spring-messages"))
-
-lazy val root = (project in file(".")).dependsOn(messages).enablePlugins(PlayJava)
+lazy val root = (project in file(".")).enablePlugins(PlayJava)
 libraryDependencies ++= Seq(
   guice,
   "com.typesafe.akka" %% "akka-remote" % akkaVersion,

@@ -8,14 +8,21 @@ import akka.cluster.ClusterEvent.MemberUp;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.routing.FromConfig;
+import akka.util.Timeout;
 import com.google.inject.Inject;
 import play.libs.akka.InjectedActorSupport;
+import scala.concurrent.duration.Duration;
 
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import static akka.pattern.PatternsCS.ask;
 
 public class CentralMasterActor extends AbstractActor implements InjectedActorSupport {
     private final ActorRef engineNode;
     private final Cluster cluster;
     private final LoggingAdapter logger = Logging.getLogger(getContext().getSystem(), this);
+    private final Timeout timeout = new Timeout(Duration.create(15, TimeUnit.SECONDS));
 
     @Inject
     public CentralMasterActor(ActorSystem system) {
@@ -35,23 +42,19 @@ public class CentralMasterActor extends AbstractActor implements InjectedActorSu
         cluster.unsubscribe(getSelf());
     }
 
-/*    @Override
-    public void onReceive(Object msg) throws Exception {
-        unhandled(msg);
-    }*/
-
     @Override
     public Receive createReceive() {
         return receiveBuilder()
                 .match(MemberUp.class, mUp -> {
                     logger.info("MemberUp: " + mUp.member().toString());
                 })
-                .matchEquals("Hello", s -> {
-                    logger.info("Message: " + s);
-                    engineNode.tell(s, getSelf());
-                })
-                .matchEquals("World", s -> {
-                    logger.info("Message: " + s);
+                .matchEquals("GetStatisticService", s -> {
+                    // engineNode.tell(s, getSelf());
+                    ask(engineNode, s, timeout).toCompletableFuture().get();
+//
+//                    for (String sessionTraffic: (List<String>)result) {
+//                        logger.info(sessionTraffic);
+//                    }
                 })
                 .build();
     }
