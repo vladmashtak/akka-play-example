@@ -49,12 +49,8 @@ public class CentralMasterActor extends AbstractActor implements InjectedActorSu
                     logger.info("MemberUp: " + mUp.member().toString());
                 })
                 .matchEquals("GetStatisticService", s -> {
-                    // engineNode.tell(s, getSelf());
-                    ask(engineNode, s, timeout).toCompletableFuture().get();
-//
-//                    for (String sessionTraffic: (List<String>)result) {
-//                        logger.info(sessionTraffic);
-//                    }
+                    ask(engineNode, s, timeout)
+                    .thenAccept(o -> logger.info(o.toString()));
                 })
                 .build();
     }
