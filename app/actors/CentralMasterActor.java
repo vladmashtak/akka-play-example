@@ -13,19 +13,22 @@ import com.google.inject.Inject;
 import play.libs.akka.InjectedActorSupport;
 import scala.concurrent.duration.Duration;
 
-import java.util.List;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 
 import static akka.pattern.PatternsCS.ask;
+import static akka.pattern.PatternsCS.pipe;
 
 public class CentralMasterActor extends AbstractActor implements InjectedActorSupport {
+    private final ActorSystem system;
     private final ActorRef engineNode;
     private final Cluster cluster;
     private final LoggingAdapter logger = Logging.getLogger(getContext().getSystem(), this);
     private final Timeout timeout = new Timeout(Duration.create(15, TimeUnit.SECONDS));
 
     @Inject
-    public CentralMasterActor(ActorSystem system) {
+    public CentralMasterActor(ActorSystem s) {
+        system = s;
         cluster = Cluster.get(system);
         engineNode = system.actorOf(FromConfig.getInstance().props(), "EngineNode");
     }
@@ -49,8 +52,9 @@ public class CentralMasterActor extends AbstractActor implements InjectedActorSu
                     logger.info("MemberUp: " + mUp.member().toString());
                 })
                 .matchEquals("GetStatisticService", s -> {
-                    ask(engineNode, s, timeout)
-                    .thenAccept(o -> logger.info(o.toString()));
+                    CompletionStage<Object> result = ask(engineNode, s, timeout);
+
+                    pipe(result, system.dispatcher()).to(getSender());
                 })
                 .build();
     }
