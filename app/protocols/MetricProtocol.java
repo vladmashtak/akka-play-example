@@ -1,4 +1,5 @@
 package protocols;
+
 import akka.cluster.metrics.NodeMetrics;
 import akka.cluster.metrics.StandardMetrics;
 import akka.cluster.metrics.StandardMetrics.Cpu;
@@ -23,6 +24,10 @@ public class MetricProtocol implements Serializable {
 
     public HeapMemory getHeap() {
         return heap;
+    }
+
+    public String getNodeAddress() {
+        return nodeAddress;
     }
 
     @Override

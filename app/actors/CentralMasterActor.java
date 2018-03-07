@@ -8,6 +8,7 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import com.google.inject.Inject;
 import play.libs.akka.InjectedActorSupport;
+import protocols.MetricProtocol;
 
 public class CentralMasterActor extends AbstractActor implements InjectedActorSupport {
     private final Cluster cluster;
@@ -33,12 +34,9 @@ public class CentralMasterActor extends AbstractActor implements InjectedActorSu
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-                .match(MemberUp.class, mUp -> {
-                    logger.info("MemberUp: " + mUp.member());
-                })
-                .matchEquals("GetStatisticService", s -> {
-                    logger.info("GetStatisticService");
-                })
+                .match(MemberUp.class, mUp -> logger.info("MemberUp: " + mUp.member()))
+                .match(MetricProtocol.class, metricProtocol -> logger.info(metricProtocol.toString()))
+                .matchEquals("GetStatisticService", s -> logger.info("GetStatisticService"))
                 .build();
     }
 }

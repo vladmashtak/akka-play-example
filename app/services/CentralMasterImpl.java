@@ -27,7 +27,6 @@ public class CentralMasterImpl implements CentralMaster {
 
     @Override
     public CompletionStage<Object> getSessionTraffic() {
-        System.out.println(engineActor);
         return ask(engineActor, "GetStatisticService", timeout);
     }
 }
