@@ -18,7 +18,7 @@ public class HomeController extends Controller {
         this.central = central;
     }
 
-    public CompletionStage<Result> getData() {
+    public CompletionStage<Result> getSessionTraffic() {
         return central.getSessionTraffic()
                 .thenApply(response -> ok(Json.toJson((ArrayList<String>)response)));
     }
